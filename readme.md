@@ -1,2 +1,6 @@
 # First Go
-## exploring Golang basics
+## Exploring Golang basics
+
+#### Theams
+
+* Structs
