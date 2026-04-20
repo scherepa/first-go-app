@@ -3,10 +3,25 @@
 
 #### Theams
 
-* Print ftm
-* For loops, switch and if statements
-* Dates
-* Strings
-* Get header of external http request
-* Pointers
+* Functions:
+    * init
+    * defer
+    * for, if and switch
+* Basics:
+    * init
+    * pointers
+    * types
+    * error handling
+    * global variables
+    * create and use package
+* Using packages:
+    * fmt
+    * time
+    * os
+    * sql
+    * log
+    * godotenv
+    * regexp
+	* strings
+    * net/http
 * Structs
