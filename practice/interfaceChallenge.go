@@ -2,8 +2,8 @@ package practice
 
 import (
 	"fmt"
-	"os"
 	"io"
+	"os"
 )
 
 type Capper struct {
@@ -13,11 +13,11 @@ type Capper struct {
 func PrintViaWriter() {
 	c := &Capper{os.Stdout}
 	/*
-	func Fprintln(w io.Writer, a ...any) (n int, err error)
+		func Fprintln(w io.Writer, a ...any) (n int, err error)
 	*/
 	fmt.Fprintln(c, "Hello There")
 	name := "Kim"
-	age := 22 
+	age := 22
 	n, err := fmt.Fprintln(os.Stdout, name, "is", age, "years old.")
 
 	// The n and err return values from Fprintln are
@@ -42,9 +42,9 @@ func (c *Capper) Write(p []byte) (int, error) {
 		out[i] = c
 	}
 	/*
-	io.Writer is the interface that wraps the basic Write method.
-	Write writes len(p) bytes from p to the underlying data stream. It returns the number of bytes written from p (0 <= n <= len(p)) and any error encountered that caused the write to stop early
-	So the Capper wrt is io.Writer it recieves array of byte
+		io.Writer is the interface that wraps the basic Write method.
+		Write writes len(p) bytes from p to the underlying data stream. It returns the number of bytes written from p (0 <= n <= len(p)) and any error encountered that caused the write to stop early
+		So the Capper wrt is io.Writer it recieves array of byte
 	*/
 	return c.wrt.Write(out)
 }
