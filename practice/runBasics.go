@@ -37,6 +37,19 @@ func RunLearning() {
 	fmt.Println("********")
 	util.NewPostClassic("classic", "la la boo text")
 	fmt.Println("********")
+	sq, err := util.NewSquare(2, 3, 10)
+	if err != nil {
+		fmt.Printf("Error: %#v\n", err)
+		return
+	}
+	sq.Move(2, 2)
+	area, err := sq.Area()
+	if err != nil {
+		fmt.Printf("Error: %#v\n", err)
+		return
+	}
+	fmt.Printf("After Move: %#v\tArea: %#v\n", sq, area)
+	wrap("PrintViaWriter", PrintViaWriter)
 }
 
 func playMathSqrt(n float64) {

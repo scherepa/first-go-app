@@ -24,6 +24,12 @@ type DBConnConfig struct {
 	timeZone string // Time zone for the database.
 }
 
+// feel the despereta need of DB Manager
+// and separating private and public
+// Manager should be available
+// but configurations should be available only to DB Manager
+// It will have all the methods and map of connections as private property
+
 type Connection interface {
 	LoadDsn(name string) (string, error)
 	Connect(dsn string) (*sql.DB, error)
@@ -70,6 +76,7 @@ type MySQLConnection struct {
 	Config *DBConnConfig
 }
 
+// factory GO way
 func (conn MySQLConnection) LoadDsn(name string) (string, error) {
 	conf := DBConnConfigs[name]
 	return fmt.Sprintf(
@@ -160,7 +167,7 @@ keyUp := strings.ToUpper(key)*/
 // Format: user:password@tcp(127.0.0.1:3307)/dbname
 // dsn := "root:your_secure_password@tcp(127.0.0.1:3307)/my_app"
 // DSN format: user:password@tcp(host:port)/dbname
-// later on mabe case postgre
+// later on maybe case postgre
 // case
 //switch conf.driver {
 //case "mysql":

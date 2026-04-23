@@ -65,3 +65,38 @@ func NewPostClassic(title string, text string) {
 	fmt.Printf("Formated date: %s\n", utc.Format("02 01 2006 15:04:05"))
 	fmt.Printf("Formated date: %s\n", utc.Format("02-01-2006 15:04:05"))
 }
+
+// challange from course
+type Square struct {
+	X      int
+	W      int
+	Length int
+}
+
+func NewSquare(x int, y int, l int) (*Square, error) {
+	if l <= 0 {
+		return nil, fmt.Errorf("No square can be created, with side length less or equal 0")
+	}
+	b := Square{
+		X:      x,
+		W:      y,
+		Length: l,
+	}
+	return &b, nil
+}
+
+func (s *Square) Move(dx int, dy int) (*Square, error) {
+	if s == nil {
+		return nil, fmt.Errorf("no square provided")
+	}
+	s.X += dx
+	s.W += dy
+	return s, nil
+}
+
+func (s *Square) Area() (int, error) {
+	if s == nil {
+		return 0, fmt.Errorf("no square provided")
+	}
+	return s.Length * s.Length, nil
+}
