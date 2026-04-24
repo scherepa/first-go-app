@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -66,11 +67,14 @@ func NewPostClassic(title string, text string) {
 	fmt.Printf("Formated date: %s\n", utc.Format("02-01-2006 15:04:05"))
 }
 
+type Shape interface {
+	Move(int, int) error
+	Area() (float32, error)
+}
+
 // challange from course
 type Square struct {
-	X      int
-	W      int
-	Length int
+	X, Y, Length int
 }
 
 func NewSquare(x int, y int, l int) (*Square, error) {
@@ -79,24 +83,58 @@ func NewSquare(x int, y int, l int) (*Square, error) {
 	}
 	b := Square{
 		X:      x,
-		W:      y,
+		Y:      y,
 		Length: l,
 	}
 	return &b, nil
 }
 
-func (s *Square) Move(dx int, dy int) (*Square, error) {
+func (s *Square) Move(dx int, dy int) error {
 	if s == nil {
-		return nil, fmt.Errorf("no square provided")
+		return fmt.Errorf("no square provided")
 	}
 	s.X += dx
-	s.W += dy
-	return s, nil
+	s.Y += dy
+	return nil
 }
 
-func (s *Square) Area() (int, error) {
+func (s *Square) Area() (float32, error) {
 	if s == nil {
-		return 0, fmt.Errorf("no square provided")
+		return 0.0, fmt.Errorf("no square provided")
 	}
-	return s.Length * s.Length, nil
+	return 1.0 * float32(s.Length*s.Length), nil
+}
+
+// challange from course
+type Circle struct {
+	X, Y   int
+	Radius int
+}
+
+func NewCircle(x int, y int, l int) (*Circle, error) {
+	if l <= 0 {
+		return nil, fmt.Errorf("No circle can be created, with radius length less or equal 0")
+	}
+	b := Circle{
+		X:      x,
+		Y:      y,
+		Radius: l,
+	}
+	return &b, nil
+}
+
+func (s *Circle) Move(dx int, dy int) error {
+	if s == nil {
+		return fmt.Errorf("no circle provided")
+	}
+	s.X += dx
+	s.Y += dy
+	return nil
+}
+
+func (s *Circle) Area() (float32, error) {
+	if s == nil {
+		return 0.0, fmt.Errorf("no square provided")
+	}
+	return math.Pi * float32(s.Radius*s.Radius), nil
 }

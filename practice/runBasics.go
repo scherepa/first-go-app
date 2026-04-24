@@ -49,6 +49,20 @@ func RunLearning() {
 		return
 	}
 	fmt.Printf("After Move: %#v\tArea: %#v\n", sq, area)
+
+	c, err := util.NewCircle(2, 3, 10)
+	if err != nil {
+		fmt.Printf("Error: %#v\n", err)
+		return
+	}
+	c.Move(2, 2)
+	areaC, err := c.Area()
+	if err != nil {
+		fmt.Printf("Error: %#v\n", err)
+		return
+	}
+	fmt.Printf("After Move: %#v\tArea: %#v\n", c, areaC)
+
 	wrap("PrintViaWriter", PrintViaWriter)
 }
 
