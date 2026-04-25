@@ -1,4 +1,4 @@
-package main
+package practice
 
 // pay attention nothing returned as this is by referance
 func DoubleArrVaueAt(values []int, i int) {
