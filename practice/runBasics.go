@@ -67,6 +67,8 @@ func RunLearning() {
 	wrap("RunGenerics", RunGenerics)
 	wrap("ErrorTraceToLog", ErrorTraceToLog)
 	wrap("SimulateKill", SimulateKill)
+	wrap("RegularVsConcurrent", RegularVsConcurrent)
+	wrap("chanCommunicate", chanCommunicate)
 }
 
 func playMathSqrt(n float64) {
