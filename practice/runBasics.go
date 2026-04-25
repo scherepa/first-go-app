@@ -64,6 +64,8 @@ func RunLearning() {
 	fmt.Printf("After Move: %#v\tArea: %#v\n", c, areaC)
 
 	wrap("PrintViaWriter", PrintViaWriter)
+	wrap("RunGenerics", RunGenerics)
+	wrap("ErrorTraceToLog", ErrorTraceToLog)
 }
 
 func playMathSqrt(n float64) {
