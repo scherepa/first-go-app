@@ -95,6 +95,7 @@ func SimulateKill() {
 				err = fmt.Errorf("%v", e)
 			}
 		}()
+		// %+v for trace
 		log.Panicf("Error: %+v", err)
 	}
 }
