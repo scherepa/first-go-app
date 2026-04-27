@@ -2,7 +2,7 @@ package util
 
 import (
 	"fmt"
-    "net/http"
+	"net/http"
 )
 
 func CallURLGetHeader(url string) (string, error) {
