@@ -40,8 +40,8 @@ func setupLogging() {
 func killServer(pidFile string) error {
 	file, err := os.Open(pidFile)
 	if err != nil {
-		// here we do not wrap at all origionally
 		// lets add wrap
+		// to add trace
 		//return err
 		return errors.Wrap(err, "bad process ID")
 	}
@@ -84,18 +84,21 @@ func SimulateKill() {
 	//setupLogging()
 	// file is in app directory as no folder before in the path
 	if err := killServer("server.pid"); err != nil {
-		// we've got error when adding server.pid with word "seven inside as integer is expected"
+		// we've got error when adding server.pid with word "seven" inside as integer is expected
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
-		//trace
-		//log.Printf("error: %+v", err)
-		//os.Exit(1)
+		// simple trace
+		// log.Printf("error: %+v", err)
+		// just stop the process with 1 which as usually in commands mean exception
+		// die like
+		// os.Exit(1)
 		// lets panic but recover
+		// we do it with defer so it will be in the end of function
 		defer func() {
 			if e := recover(); e != nil {
 				err = fmt.Errorf("%v", e)
 			}
 		}()
-		// %+v for trace
+		// %+v for trace, panic for defer to work
 		log.Panicf("Error: %+v", err)
 	}
 }
