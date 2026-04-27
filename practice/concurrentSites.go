@@ -12,31 +12,25 @@ func printResCall(url string) {
 	fmt.Printf("%#v\t|%#v\t|\t%#v\n", url, ctype, err)
 }
 
-type result struct {
-	url   string
-	ctype string
-	err   error
-}
-
-func concurTryDiferent(url string, ch chan result) {
-	res := result{url: url}
+func concurrentTryDiferent(url string, ch chan customResp) {
+	res := customResp{url: url}
 	ctype, err := util.CallURLGetHeader(url)
-	res.ctype = ctype
+	res.contentType = ctype
 	res.err = err
 	ch <- res
 }
 
 func siteSerial2(urls []string) {
-	ch2 := make(chan result)
+	ch2 := make(chan customResp)
 	for _, url := range urls {
-		go concurTryDiferent(url, ch2)
+		go concurrentTryDiferent(url, ch2)
 	}
 	fmt.Print("---\nReceived From Chanel different\n---\n")
 	// not really understandable the order
-	for i := range len(urls) {
+	// when safe to close channel ???
+	for i := range urls {
 		val := <-ch2
-		//printResCall(url)
-		fmt.Printf("%d\t|%#v\n", i, val)
+		fmt.Println(i, val.url, val.contentType, val.err)
 	}
 	fmt.Println("---")
 }
@@ -48,12 +42,13 @@ func siteSerial(urls []string) {
 			ctype, err := util.CallURLGetHeader(url)
 			ch <- fmt.Sprintf("\t%#v\t|%#v\t|%#v", url, ctype, err)
 		}
+		// feeling need of control when can be closed actually
 		close(ch)
 	}()
 	fmt.Print("---\nReceived From Chanel\n---\n")
 	fmt.Println("NUM\t|\t\t\t\tURL\t\t\t|\t\tContent Type\t\t|Error")
-	//FILO
-	for i := range len(urls) {
+	//as finishes...
+	for i := 0; i < len(urls); i++ {
 		val := <-ch
 		//printResCall(url)
 		fmt.Printf("%d\t|%s\n", i, val)
@@ -85,22 +80,58 @@ func sitesConcurrent(urls []string) {
 	fmt.Println("---")
 }
 
+type customResp struct {
+	url         string
+	contentType string
+	err         error
+}
+
+func mostControled(urls []string) {
+	headers := make(chan customResp)
+	var wg sync.WaitGroup
+	fmt.Println("URLS COUNT", len(urls))
+	fmt.Println("\t\t\tURL\t\t\t|\t\tContent Type\t\t|\tError")
+	// regular order
+	for _, url := range urls {
+		wg.Add(1)             // mostly waiting groups communicate via channels
+		go func(url string) { // goroutine function
+			defer wg.Done()
+			ctype, err := util.CallURLGetHeader(url)
+			headers <- customResp{url, fmt.Sprintf("\t|%#v\t|", ctype), err}
+		}(url)
+	}
+	// wait for all to settle
+	go func() {
+		wg.Wait()
+		close(headers)
+	}()
+	//as finishes...
+	i := 0
+	for val := range headers {
+		fmt.Println(i, val.url, val.contentType, val.err)
+		i++
+	}
+	fmt.Println("---")
+}
+
 func RegularVsConcurrent() { // seems to be working like pool of http
 	// but main idea more close to laravel queues which run simulteniously
 	// as we use same arr to send... sites remember requests and next call will be faster anyway but obviously concurrent is faster
 	urls := []string{
-		"https://www.google.com/search?q=free+rest+api",
-		"https://jsonplaceholder.typicode.com/posts",
-		"https://golang.org",
-		"https://api.github.com", // if we do not take smth very long to answer do not see much difference
+		"https://www.google.com/search?q=rest+api",
+		"https://jsonplaceholder.typicode.com/posts/5",
+		"https://jsonplaceholder.typicode.com/todos/6",
+		"https://api.github.com/users/scherepa", // if we do not take smth very long to answer do not see much difference
 	}
 
 	// for download file urls were forbidden so stopped
-	fmt.Println("---regular")
+	//fmt.Println("---regular")
 	start := time.Now()
+	// way too long
 	siteRegular(urls)
 	fmt.Println(time.Since(start), "\tregular 1 by one")
 	//----
+	// bad
 	fmt.Println("---go outside for")
 	start = time.Now()
 	siteSerial(urls)
@@ -115,4 +146,10 @@ func RegularVsConcurrent() { // seems to be working like pool of http
 	start = time.Now()
 	siteSerial2(urls)
 	fmt.Println(time.Since(start), "\tconcurrent?")
+
+	//---
+	fmt.Println("---go wg and channels")
+	start = time.Now()
+	mostControled(urls)
+	fmt.Println(time.Since(start), "\tconcurrent wg and channels controlled")
 }
