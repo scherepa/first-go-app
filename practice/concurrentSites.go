@@ -12,7 +12,7 @@ func printResCall(url string) {
 	fmt.Printf("%#v\t|%#v\t|\t%#v\n", url, ctype, err)
 }
 
-func concurrentTryDiferent(url string, ch chan customResp) {
+func concurrentTryDifferent(url string, ch chan customResp) {
 	res := customResp{url: url}
 	ctype, err := util.CallURLGetHeader(url)
 	res.contentType = ctype
@@ -21,13 +21,14 @@ func concurrentTryDiferent(url string, ch chan customResp) {
 }
 
 func siteSerial2(urls []string) {
-	ch2 := make(chan customResp)
+	ch2 := make(chan customResp, len(urls)) // prevents blocking(when no receiver yet) if we give the exact buffer length
 	for _, url := range urls {
-		go concurrentTryDiferent(url, ch2)
+		go concurrentTryDifferent(url, ch2)
 	}
 	fmt.Print("---\nReceived From Chanel different\n---\n")
-	// not really understandable the order
-	// when safe to close channel ???
+	// not really understandable the order - completion
+	// when safe to close channel? afterwords but feels not actually controlled
+	// staying open here cant be closed
 	for i := range urls {
 		val := <-ch2
 		fmt.Println(i, val.url, val.contentType, val.err)
@@ -67,9 +68,8 @@ func siteRegular(urls []string) {
 func sitesConcurrent(urls []string) {
 	var wg sync.WaitGroup
 	fmt.Println("\t\t\tURL\t\t\t|\t\tContent Type\t\t|\tError")
-	// regular order
 	for _, url := range urls {
-		wg.Add(1)             // mostly waiting groups communicate via channels
+		wg.Add(1)
 		go func(url string) { // goroutine function
 			printResCall(url)
 			wg.Done()
@@ -86,14 +86,14 @@ type customResp struct {
 	err         error
 }
 
-func mostControled(urls []string) {
-	headers := make(chan customResp)
+func mostControlled(urls []string) {
+	headers := make(chan customResp, len(urls))
 	var wg sync.WaitGroup
 	fmt.Println("URLS COUNT", len(urls))
 	fmt.Println("\t\t\tURL\t\t\t|\t\tContent Type\t\t|\tError")
-	// regular order
+	// regular order? - no it is will be on channel by completion in completion order
 	for _, url := range urls {
-		wg.Add(1)             // mostly waiting groups communicate via channels
+		wg.Add(1)
 		go func(url string) { // goroutine function
 			defer wg.Done()
 			ctype, err := util.CallURLGetHeader(url)
@@ -101,7 +101,7 @@ func mostControled(urls []string) {
 		}(url)
 	}
 	// wait for all to settle
-	go func() {
+	go func() { //safely closing channel for writers after wait for settle
 		wg.Wait()
 		close(headers)
 	}()
@@ -110,6 +110,29 @@ func mostControled(urls []string) {
 	for val := range headers {
 		fmt.Println(i, val.url, val.contentType, val.err)
 		i++
+	}
+	fmt.Println("---")
+}
+
+func mostControlledWithoutChannel(urls []string, length int) {
+	var wg sync.WaitGroup
+	result := make([]customResp, length)
+	fmt.Println("URLS COUNT", length)
+	fmt.Println("\t\t\tURL\t\t\t|\t\tContent Type\t\t|\tError")
+	// preserved order
+	for i, url := range urls {
+		wg.Add(1)
+		go func(i int, url string) { // goroutine function
+			defer wg.Done()
+			ctype, err := util.CallURLGetHeader(url)
+			result[i] = customResp{url, fmt.Sprintf("\t|%#v\t|", ctype), err}
+		}(i, url)
+	}
+	// wait for all to settle here straight use no go needed
+	wg.Wait()
+	// as finishes...
+	for i, val := range result { //ordered
+		fmt.Println(i, val.url, val.contentType, val.err)
 	}
 	fmt.Println("---")
 }
@@ -150,6 +173,12 @@ func RegularVsConcurrent() { // seems to be working like pool of http
 	//---
 	fmt.Println("---go wg and channels")
 	start = time.Now()
-	mostControled(urls)
+	mostControlled(urls)
 	fmt.Println(time.Since(start), "\tconcurrent wg and channels controlled")
+
+	//---
+	fmt.Println("---go wg and no channels")
+	start = time.Now()
+	mostControlledWithoutChannel(urls, len(urls))
+	fmt.Println(time.Since(start), "\tconcurrent wg and pay attention order preserved")
 }
