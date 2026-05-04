@@ -33,7 +33,7 @@ func main() {
 		}
 		fmt.Printf("Connection '%s' is ready!\n", name)
 		//config.PingConn(name)
-		fmt.Printf("\u2705 Connection '%s' was 📌 added to map and is ready!\n", name)
+		fmt.Printf("\u2705 Connection '%s' was \U0001F4CC added to map and is ready!\n", name)
 		defer db.Close()
 	}
 	practice.RunLearning()

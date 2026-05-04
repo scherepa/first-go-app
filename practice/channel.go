@@ -38,6 +38,13 @@ func useBuffer() {
 	close(ch2)
 	fmt.Println("--- Buffer END")
 }
+func processBuff(ch chan int, count int) {
+	defer close(ch)
+	for i := 0; i < count; i++ {
+		ch <- i
+	}
+	fmt.Println("--- End of inserting")
+}
 
 func chanCommunicate() {
 	ch := make(chan string)
@@ -66,4 +73,13 @@ func chanCommunicate() {
 		fmt.Printf("received %s\n", i)
 	}
 	useBuffer()
+	// in more realistic way we won't do many things in one channel without closing it in goroutine
+	// and if we know predetermined number we will buffer
+	ch3 := make(chan int, 5)
+	go processBuff(ch3, 5)
+	for i := range ch3 {
+		fmt.Println("on ch3 received:", i)
+		// only to simulate delay in reading from channel
+		time.Sleep(time.Second)
+	}
 }

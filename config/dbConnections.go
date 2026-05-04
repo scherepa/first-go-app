@@ -150,7 +150,7 @@ func PingConn(name string) {
 	if err != nil {
 		log.Fatalf("Connection '%s' Failed! Is Docker running? Error: %v", name, err)
 	}
-	fmt.Printf("🚀 Ping SUCCESS! Go engine is talking to '%s'\n", name)
+	fmt.Printf("\U0001F680 Ping SUCCESS! Go engine is talking to '%s'\n", name)
 }
 
 /*func LoadDsn(key string, driver string) (string, error) {
